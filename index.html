@@ -15,6 +15,7 @@
       --muted: #555;
       --muted2: #3a3a3a;
       --danger: #a04040;
+      --accent: #5a8a5a;
       --radius: 5px;
       --font: 'Instrument Sans', sans-serif;
     }
@@ -30,22 +31,21 @@
     .rt-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted2); transition: background 0.4s; }
     .rt-dot.live { background: #4a7a4a; }
 
-    main { flex: 1; max-width: 480px; width: 100%; margin: 0 auto; padding: 40px 24px 80px; }
-
+    main { flex: 1; max-width: 520px; width: 100%; margin: 0 auto; padding: 40px 24px 80px; }
     .screen { display: none; }
     .screen.active { display: block; }
 
-    /* AUTH */
+    /* ── AUTH ───────────────────────────────────── */
     .auth-hint { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
     .auth-row { display: flex; gap: 8px; }
     .auth-row input { flex: 1; }
 
-    /* TODOS */
+    /* ── TODOS TOP ──────────────────────────────── */
     .todos-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
     .todos-top h2 { font-size: 12px; font-weight: 500; color: var(--muted); }
     .done-count { font-size: 12px; color: var(--muted); }
 
-    /* INPUTS */
+    /* ── INPUTS ─────────────────────────────────── */
     input[type="text"] {
       background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
       color: var(--text); font-family: var(--font); font-size: 13px; padding: 8px 11px;
@@ -63,6 +63,13 @@
     .btn:hover { border-color: #444; color: #e8e8e4; }
     .btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
+    .btn-inline {
+      background: none; border: none; font-family: var(--font); font-size: 11px;
+      color: var(--muted); cursor: pointer; padding: 1px 4px; border-radius: 3px;
+      transition: color 0.12s; white-space: nowrap;
+    }
+    .btn-inline:hover { color: var(--text); }
+
     .btn-danger {
       background: none; border: none; color: var(--muted2); font-family: var(--font);
       font-size: 12px; cursor: pointer; padding: 2px 5px; border-radius: 3px;
@@ -70,7 +77,7 @@
     }
     .btn-danger:hover { color: var(--danger); }
 
-    /* FILTERS */
+    /* ── FILTERS ────────────────────────────────── */
     .filters { display: flex; gap: 2px; margin-bottom: 14px; }
     .filter-btn {
       background: none; border: none; color: var(--muted); font-family: var(--font);
@@ -79,20 +86,77 @@
     .filter-btn.active { background: var(--muted2); color: var(--text); }
     .filter-btn:hover:not(.active) { color: var(--text); }
 
-    /* ADD FORM */
+    /* ── ADD TASK FORM ──────────────────────────── */
     .add-form { display: flex; gap: 8px; margin-bottom: 18px; }
     .add-form input { flex: 1; }
 
-    /* TODO LIST */
-    .todo-list { display: flex; flex-direction: column; }
-    .todo-item {
+    /* ── TASK GROUP ─────────────────────────────── */
+    .task-group { border-bottom: 1px solid var(--border); }
+    .task-group:last-child { border-bottom: none; }
+
+    /* ── PARENT TASK ROW ────────────────────────── */
+    .parent-row {
       display: flex; align-items: center; gap: 10px;
-      padding: 8px 2px; border-bottom: 1px solid var(--border);
+      padding: 9px 2px 9px 0;
       transition: opacity 0.15s;
     }
-    .todo-item:last-child { border-bottom: none; }
-    .todo-item.done { opacity: 0.32; }
+    .parent-row.all-done { opacity: 0.35; }
 
+    /* collapse toggle */
+    .collapse-btn {
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      padding: 0; width: 14px; flex-shrink: 0; font-size: 10px; line-height: 1;
+      transition: color 0.12s; display: flex; align-items: center; justify-content: center;
+    }
+    .collapse-btn:hover { color: var(--text); }
+    .collapse-btn svg { transition: transform 0.15s; }
+    .collapse-btn.collapsed svg { transform: rotate(-90deg); }
+
+    /* progress ring / fraction */
+    .progress-wrap {
+      flex-shrink: 0; display: flex; align-items: center; gap: 6px;
+    }
+    .progress-ring { display: block; flex-shrink: 0; }
+    .progress-ring-bg { fill: none; stroke: var(--border); stroke-width: 2; }
+    .progress-ring-fill { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; transition: stroke-dashoffset 0.3s ease; }
+    .progress-pct { font-size: 11px; color: var(--muted); min-width: 28px; }
+
+    .parent-title {
+      flex: 1; font-size: 13px; font-weight: 500; color: var(--text);
+      cursor: default;
+    }
+    .parent-row.all-done .parent-title { text-decoration: line-through; }
+
+    .parent-actions { display: flex; align-items: center; gap: 2px; opacity: 0; transition: opacity 0.12s; }
+    .parent-row:hover .parent-actions { opacity: 1; }
+
+    /* ── SUBTASK SECTION ────────────────────────── */
+    .subtask-section { padding-left: 24px; overflow: hidden; }
+    .subtask-section.collapsed { display: none; }
+
+    .subtask-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px 2px; border-top: 1px solid var(--border);
+      transition: opacity 0.15s;
+    }
+    .subtask-row.done { opacity: 0.32; }
+    .subtask-row.done .subtask-text { text-decoration: line-through; }
+    .subtask-text { flex: 1; font-size: 12px; color: var(--text); }
+
+    .subtask-actions { display: flex; align-items: center; gap: 2px; opacity: 0; transition: opacity 0.12s; }
+    .subtask-row:hover .subtask-actions { opacity: 1; }
+
+    /* inline add subtask */
+    .add-subtask-row {
+      display: flex; gap: 6px; padding: 6px 2px; border-top: 1px solid var(--border);
+    }
+    .add-subtask-row input { flex: 1; font-size: 12px; padding: 5px 9px; }
+    .add-subtask-row .btn { font-size: 12px; padding: 5px 10px; }
+    .add-subtask-trigger {
+      display: flex; padding: 5px 2px; border-top: 1px solid var(--border);
+    }
+
+    /* ── CHECKBOX ───────────────────────────────── */
     .check-wrap { flex-shrink: 0; width: 15px; height: 15px; position: relative; cursor: pointer; }
     .check-wrap input[type="checkbox"] { opacity: 0; position: absolute; inset: 0; cursor: pointer; margin: 0; }
     .check-box {
@@ -106,20 +170,13 @@
     .check-icon path { stroke: var(--text); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
     .check-wrap input:checked ~ .check-box .check-icon { display: block; }
 
-    .todo-text { flex: 1; font-size: 13px; color: var(--text); }
-    .todo-item.done .todo-text { text-decoration: line-through; }
-    .todo-meta { font-size: 11px; color: var(--muted); flex-shrink: 0; }
-
+    /* ── MISC ───────────────────────────────────── */
     .empty-state { padding: 36px 0; font-size: 12px; color: var(--muted); }
-
-    /* MESSAGES */
     .message { padding: 8px 11px; border-radius: var(--radius); font-size: 12px; margin-bottom: 12px; display: none; }
     .message.error   { background: #2a1a1a; border: 1px solid #4a2a2a; color: #a07070; display: block; }
     .message.success { background: #1a2a1a; border: 1px solid #2a4a2a; color: #70a070; display: block; }
-
     .spinner { width: 13px; height: 13px; border: 1.5px solid var(--border); border-top-color: var(--text); border-radius: 50%; animation: spin 0.6s linear infinite; display: inline-block; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
     #loading-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 100; transition: opacity 0.3s; }
     #loading-overlay.hidden { opacity: 0; pointer-events: none; }
     .loading-logo { font-size: 13px; color: var(--muted); }
@@ -145,7 +202,8 @@
       <p class="auth-hint">enter a username to continue</p>
       <div id="auth-msg" class="message"></div>
       <div class="auth-row">
-        <input type="text" id="username-input" placeholder="username" maxlength="30" autocomplete="off" autocapitalize="none" spellcheck="false" />
+        <input type="text" id="username-input" placeholder="username" maxlength="30"
+               autocomplete="off" autocapitalize="none" spellcheck="false" />
         <button class="btn" id="enter-btn">enter</button>
       </div>
     </div>
@@ -179,11 +237,14 @@
 <script>
 const SUPABASE_URL = 'https://abrtmsqhglebnvnnqsgz.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_k5Q359IfraiIVDZ4AQlAvQ_2YSD4wBY';
-// Salt used to derive a password from the username. Not a security measure —
-// this app is intentionally low-security for use among friends.
 const SALT = 'todo-friends-xK9m';
 
-let sb, currentUser, currentUsername, todos = [], activeFilter = 'all', rtChannel;
+let sb, currentUser, currentUsername;
+let todos = [];          // all rows flat
+let activeFilter = 'all';
+let rtChannel;
+let collapsedIds = {};   // track which parent tasks are collapsed
+let addingSubtaskFor = null; // parent id currently showing inline add
 
 // ── BOOT ─────────────────────────────────────────────────
 window.addEventListener('load', function () {
@@ -192,12 +253,10 @@ window.addEventListener('load', function () {
   sb.auth.onAuthStateChange(function (_e, session) {
     if (session && session.user) {
       currentUser = session.user;
-      var uname = usernameFromEmail(session.user.email);
-      currentUsername = uname;
-      showTodosScreen(uname);
+      currentUsername = usernameFromEmail(session.user.email);
+      showTodosScreen(currentUsername);
     } else {
-      currentUser = null;
-      currentUsername = null;
+      currentUser = null; currentUsername = null;
       if (rtChannel) { sb.removeChannel(rtChannel); rtChannel = null; }
       document.getElementById('user-tag').style.display = 'none';
       document.getElementById('logout-btn').style.display = 'none';
@@ -216,8 +275,7 @@ window.addEventListener('load', function () {
     }
     hideOverlay();
   }).catch(function (e) {
-    hideOverlay();
-    showScreen('auth-screen');
+    hideOverlay(); showScreen('auth-screen');
     showMsg('auth-msg', 'connection error: ' + e.message, 'error');
   });
 });
@@ -236,44 +294,24 @@ async function handleEnter() {
   var raw = document.getElementById('username-input').value.trim();
   var username = raw.toLowerCase().replace(/[^a-z0-9_\-]/g, '');
   if (!username) { showMsg('auth-msg', 'pick a username', 'error'); return; }
-  if (username !== raw.toLowerCase()) {
-    document.getElementById('username-input').value = username;
-  }
+  document.getElementById('username-input').value = username;
 
   var email = usernameToEmail(username);
   var password = usernameToPassword(username);
-
   setLoading('enter-btn', true, 'enter');
 
-  // Try signing in first; if no account exists, create one
   var res = await sb.auth.signInWithPassword({ email: email, password: password });
-
   if (res.error) {
-    if (res.error.message.toLowerCase().includes('invalid login') ||
-        res.error.message.toLowerCase().includes('invalid credentials')) {
-      // First time — create the account
-      var signUpRes = await sb.auth.signUp({ email: email, password: password });
-      if (signUpRes.error) {
-        setLoading('enter-btn', false, 'enter');
-        showMsg('auth-msg', signUpRes.error.message, 'error');
-        return;
-      }
-      // Sign in after sign up
+    if (res.error.message.toLowerCase().includes('invalid')) {
+      var su = await sb.auth.signUp({ email: email, password: password });
+      if (su.error) { setLoading('enter-btn', false, 'enter'); showMsg('auth-msg', su.error.message, 'error'); return; }
       var res2 = await sb.auth.signInWithPassword({ email: email, password: password });
-      if (res2.error) {
-        setLoading('enter-btn', false, 'enter');
-        showMsg('auth-msg', res2.error.message, 'error');
-        return;
-      }
+      if (res2.error) { setLoading('enter-btn', false, 'enter'); showMsg('auth-msg', res2.error.message, 'error'); return; }
     } else {
-      setLoading('enter-btn', false, 'enter');
-      showMsg('auth-msg', res.error.message, 'error');
-      return;
+      setLoading('enter-btn', false, 'enter'); showMsg('auth-msg', res.error.message, 'error'); return;
     }
   }
-
   setLoading('enter-btn', false, 'enter');
-  // onAuthStateChange will fire and navigate
 }
 
 document.getElementById('logout-btn').addEventListener('click', function () { sb.auth.signOut(); });
@@ -299,36 +337,73 @@ function hideOverlay() {
   setTimeout(function () { if (ov.parentNode) ov.parentNode.removeChild(ov); }, 400);
 }
 
-// ── TODOS ─────────────────────────────────────────────────
+// ── LOAD ──────────────────────────────────────────────────
 async function loadTodos() {
-  var res = await sb.from('todos').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+  var res = await sb.from('todos').select('*')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: true });
   if (res.error) { showMsg('todos-msg', res.error.message, 'error'); return; }
   todos = res.data || [];
   renderTodos();
 }
 
-document.getElementById('add-btn').addEventListener('click', addTodo);
-document.getElementById('new-todo').addEventListener('keydown', function (e) { if (e.key === 'Enter') addTodo(); });
+// ── ADD PARENT TASK ───────────────────────────────────────
+document.getElementById('add-btn').addEventListener('click', addTask);
+document.getElementById('new-todo').addEventListener('keydown', function (e) { if (e.key === 'Enter') addTask(); });
 
-async function addTodo() {
+async function addTask() {
   var input = document.getElementById('new-todo');
   var title = input.value.trim();
   if (!title) return;
   input.value = '';
   setLoading('add-btn', true, 'add');
-  var res = await sb.from('todos').insert({ title: title, user_id: currentUser.id, is_complete: false });
+  var res = await sb.from('todos').insert({ title: title, user_id: currentUser.id, is_complete: false, parent_id: null });
   setLoading('add-btn', false, 'add');
   if (res.error) { showMsg('todos-msg', res.error.message, 'error'); input.value = title; }
 }
 
+// ── ADD SUBTASK ───────────────────────────────────────────
+function showSubtaskInput(parentId) {
+  addingSubtaskFor = parentId;
+  renderTodos();
+  // focus the new input
+  setTimeout(function () {
+    var inp = document.getElementById('subtask-input-' + parentId);
+    if (inp) inp.focus();
+  }, 20);
+}
+
+function hideSubtaskInput() {
+  addingSubtaskFor = null;
+  renderTodos();
+}
+
+async function commitSubtask(parentId) {
+  var inp = document.getElementById('subtask-input-' + parentId);
+  if (!inp) return;
+  var title = inp.value.trim();
+  if (!title) { hideSubtaskInput(); return; }
+  inp.value = '';
+  var res = await sb.from('todos').insert({ title: title, user_id: currentUser.id, is_complete: false, parent_id: parentId });
+  if (res.error) showMsg('todos-msg', res.error.message, 'error');
+  addingSubtaskFor = null;
+}
+
+// ── TOGGLE / DELETE ───────────────────────────────────────
 async function toggleTodo(id, current) {
   var res = await sb.from('todos').update({ is_complete: !current }).eq('id', id);
   if (res.error) showMsg('todos-msg', res.error.message, 'error');
 }
 
 async function deleteTodo(id) {
+  // deleting a parent also deletes children via ON DELETE CASCADE in DB
   var res = await sb.from('todos').delete().eq('id', id);
   if (res.error) showMsg('todos-msg', res.error.message, 'error');
+}
+
+function toggleCollapse(parentId) {
+  collapsedIds[parentId] = !collapsedIds[parentId];
+  renderTodos();
 }
 
 // ── REALTIME ──────────────────────────────────────────────
@@ -337,7 +412,7 @@ function subscribeRealtime() {
   setRt(false);
   rtChannel = sb.channel('todos-rt')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'todos', filter: 'user_id=eq.' + currentUser.id }, function (payload) {
-      if (payload.eventType === 'INSERT')      todos.unshift(payload.new);
+      if (payload.eventType === 'INSERT')      todos.push(payload.new);
       else if (payload.eventType === 'UPDATE') todos = todos.map(function (t) { return t.id === payload.new.id ? payload.new : t; });
       else if (payload.eventType === 'DELETE') todos = todos.filter(function (t) { return t.id !== payload.old.id; });
       renderTodos();
@@ -362,31 +437,132 @@ document.querySelectorAll('.filter-btn').forEach(function (btn) {
 // ── RENDER ────────────────────────────────────────────────
 function renderTodos() {
   clearMsg('todos-msg');
-  var filtered = activeFilter === 'active' ? todos.filter(function (t) { return !t.is_complete; })
-               : activeFilter === 'done'   ? todos.filter(function (t) { return  t.is_complete; })
-               : todos;
 
-  var doneCount = todos.filter(function (t) { return t.is_complete; }).length;
-  document.getElementById('done-count').textContent = doneCount;
-  document.getElementById('done-count-wrap').style.display = doneCount > 0 ? '' : 'none';
+  // Separate parents and children
+  var parents  = todos.filter(function (t) { return !t.parent_id; });
+  var children = todos.filter(function (t) { return  t.parent_id; });
+
+  // Build map: parentId -> subtasks[]
+  var subtaskMap = {};
+  children.forEach(function (c) {
+    if (!subtaskMap[c.parent_id]) subtaskMap[c.parent_id] = [];
+    subtaskMap[c.parent_id].push(c);
+  });
+
+  // Compute done count (top-level tasks fully done)
+  var doneParents = parents.filter(function (p) {
+    var subs = subtaskMap[p.id] || [];
+    return subs.length === 0 ? p.is_complete : subs.every(function (s) { return s.is_complete; });
+  }).length;
+  document.getElementById('done-count').textContent = doneParents;
+  document.getElementById('done-count-wrap').style.display = doneParents > 0 ? '' : 'none';
+
+  // Filter parents
+  var filtered = parents;
+  if (activeFilter === 'active') {
+    filtered = parents.filter(function (p) {
+      var subs = subtaskMap[p.id] || [];
+      return subs.length === 0 ? !p.is_complete : !subs.every(function (s) { return s.is_complete; });
+    });
+  } else if (activeFilter === 'done') {
+    filtered = parents.filter(function (p) {
+      var subs = subtaskMap[p.id] || [];
+      return subs.length === 0 ? p.is_complete : subs.every(function (s) { return s.is_complete; });
+    });
+  }
 
   var list = document.getElementById('todo-list');
+
   if (filtered.length === 0) {
     var msgs = { all: 'nothing here yet', active: 'all clear', done: 'nothing done yet' };
     list.innerHTML = '<div class="empty-state">' + (msgs[activeFilter] || '') + '</div>';
     return;
   }
 
-  list.innerHTML = filtered.map(function (todo) {
-    var d = new Date(todo.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    return '<div class="todo-item ' + (todo.is_complete ? 'done' : '') + '">'
-      + '<label class="check-wrap">'
-      + '<input type="checkbox" ' + (todo.is_complete ? 'checked' : '') + ' onchange="toggleTodo(\'' + todo.id + '\',' + todo.is_complete + ')">'
-      + '<div class="check-box"><svg class="check-icon" viewBox="0 0 10 7"><path d="M1 3.5L4 6.5L9 1"/></svg></div>'
-      + '</label>'
-      + '<span class="todo-text">' + esc(todo.title) + '</span>'
-      + '<span class="todo-meta">' + d + '</span>'
-      + '<button class="btn-danger" onclick="deleteTodo(\'' + todo.id + '\')">✕</button>'
+  list.innerHTML = filtered.map(function (parent) {
+    var subs = (subtaskMap[parent.id] || []).slice().sort(function (a, b) {
+      return new Date(a.created_at) - new Date(b.created_at);
+    });
+    var total = subs.length;
+    var done  = subs.filter(function (s) { return s.is_complete; }).length;
+    var allDone = total > 0 ? done === total : parent.is_complete;
+    var collapsed = collapsedIds[parent.id];
+
+    // Progress ring (only shown when subtasks exist)
+    var progressHTML = '';
+    if (total > 0) {
+      var pct = Math.round((done / total) * 100);
+      var r = 7, circ = 2 * Math.PI * r;
+      var offset = circ - (done / total) * circ;
+      progressHTML = '<div class="progress-wrap">'
+        + '<svg class="progress-ring" width="18" height="18" viewBox="0 0 18 18">'
+        + '<circle class="progress-ring-bg" cx="9" cy="9" r="' + r + '"/>'
+        + '<circle class="progress-ring-fill" cx="9" cy="9" r="' + r + '"'
+        + ' stroke-dasharray="' + circ.toFixed(2) + '"'
+        + ' stroke-dashoffset="' + offset.toFixed(2) + '"'
+        + ' transform="rotate(-90 9 9)"/>'
+        + '</svg>'
+        + '<span class="progress-pct">' + pct + '%</span>'
+        + '</div>';
+    } else {
+      // No subtasks — show a plain checkbox
+      progressHTML = '<label class="check-wrap">'
+        + '<input type="checkbox" ' + (parent.is_complete ? 'checked' : '')
+        + ' onchange="toggleTodo(\'' + parent.id + '\',' + parent.is_complete + ')">'
+        + '<div class="check-box"><svg class="check-icon" viewBox="0 0 10 7"><path d="M1 3.5L4 6.5L9 1"/></svg></div>'
+        + '</label>';
+    }
+
+    // Collapse arrow (only shown when subtasks exist)
+    var collapseHTML = total > 0
+      ? '<button class="collapse-btn' + (collapsed ? ' collapsed' : '') + '" onclick="toggleCollapse(\'' + parent.id + '\')">'
+        + '<svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        + '</button>'
+      : '<span style="width:14px;flex-shrink:0;display:inline-block"></span>';
+
+    // Subtask rows
+    var subtaskRows = subs.map(function (sub) {
+      return '<div class="subtask-row' + (sub.is_complete ? ' done' : '') + '">'
+        + '<label class="check-wrap">'
+        + '<input type="checkbox" ' + (sub.is_complete ? 'checked' : '')
+        + ' onchange="toggleTodo(\'' + sub.id + '\',' + sub.is_complete + ')">'
+        + '<div class="check-box"><svg class="check-icon" viewBox="0 0 10 7"><path d="M1 3.5L4 6.5L9 1"/></svg></div>'
+        + '</label>'
+        + '<span class="subtask-text">' + esc(sub.title) + '</span>'
+        + '<div class="subtask-actions">'
+        + '<button class="btn-danger" onclick="deleteTodo(\'' + sub.id + '\')">✕</button>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+
+    // Inline subtask add row
+    var addSubtaskHTML = '';
+    if (addingSubtaskFor === parent.id) {
+      addSubtaskHTML = '<div class="add-subtask-row">'
+        + '<input type="text" id="subtask-input-' + parent.id + '" placeholder="subtask…" maxlength="200"'
+        + ' onkeydown="if(event.key===\'Enter\')commitSubtask(\'' + parent.id + '\');if(event.key===\'Escape\')hideSubtaskInput()">'
+        + '<button class="btn" onclick="commitSubtask(\'' + parent.id + '\')">add</button>'
+        + '<button class="btn" onclick="hideSubtaskInput()">✕</button>'
+        + '</div>';
+    } else {
+      addSubtaskHTML = '<div class="add-subtask-trigger">'
+        + '<button class="btn-inline" onclick="showSubtaskInput(\'' + parent.id + '\')">+ subtask</button>'
+        + '</div>';
+    }
+
+    return '<div class="task-group">'
+      + '<div class="parent-row' + (allDone ? ' all-done' : '') + '">'
+      + collapseHTML
+      + progressHTML
+      + '<span class="parent-title">' + esc(parent.title) + '</span>'
+      + '<div class="parent-actions">'
+      + '<button class="btn-danger" onclick="deleteTodo(\'' + parent.id + '\')">✕</button>'
+      + '</div>'
+      + '</div>'
+      + '<div class="subtask-section' + (collapsed ? ' collapsed' : '') + '">'
+      + subtaskRows
+      + addSubtaskHTML
+      + '</div>'
       + '</div>';
   }).join('');
 }
