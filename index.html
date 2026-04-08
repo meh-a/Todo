@@ -356,17 +356,31 @@ async function addTask() {
   var title = input.value.trim();
   if (!title) return;
   input.value = '';
-  setLoading('add-btn', true, 'add');
-  var res = await sb.from('todos').insert({ title: title, user_id: currentUser.id, is_complete: false, parent_id: null });
-  setLoading('add-btn', false, 'add');
-  if (res.error) { showMsg('todos-msg', res.error.message, 'error'); input.value = title; }
+
+  // Optimistic: add a temp row immediately
+  var tempId = 'temp-' + Date.now();
+  var tempRow = { id: tempId, title: title, user_id: currentUser.id, is_complete: false, parent_id: null, created_at: new Date().toISOString() };
+  todos.push(tempRow);
+  renderTodos();
+
+  var res = await sb.from('todos').insert({ title: title, user_id: currentUser.id, is_complete: false, parent_id: null }).select().single();
+  if (res.error) {
+    // Revert
+    todos = todos.filter(function (t) { return t.id !== tempId; });
+    renderTodos();
+    input.value = title;
+    showMsg('todos-msg', res.error.message, 'error');
+  } else {
+    // Swap temp row for real one (realtime may already have done this)
+    todos = todos.map(function (t) { return t.id === tempId ? res.data : t; });
+    renderTodos();
+  }
 }
 
 // ── ADD SUBTASK ───────────────────────────────────────────
 function showSubtaskInput(parentId) {
   addingSubtaskFor = parentId;
   renderTodos();
-  // focus the new input
   setTimeout(function () {
     var inp = document.getElementById('subtask-input-' + parentId);
     if (inp) inp.focus();
@@ -384,21 +398,55 @@ async function commitSubtask(parentId) {
   var title = inp.value.trim();
   if (!title) { hideSubtaskInput(); return; }
   inp.value = '';
-  var res = await sb.from('todos').insert({ title: title, user_id: currentUser.id, is_complete: false, parent_id: parentId });
-  if (res.error) showMsg('todos-msg', res.error.message, 'error');
   addingSubtaskFor = null;
+
+  // Optimistic: add a temp subtask row immediately
+  var tempId = 'temp-' + Date.now();
+  var tempRow = { id: tempId, title: title, user_id: currentUser.id, is_complete: false, parent_id: parentId, created_at: new Date().toISOString() };
+  todos.push(tempRow);
+  renderTodos();
+
+  var res = await sb.from('todos').insert({ title: title, user_id: currentUser.id, is_complete: false, parent_id: parentId }).select().single();
+  if (res.error) {
+    todos = todos.filter(function (t) { return t.id !== tempId; });
+    renderTodos();
+    showMsg('todos-msg', res.error.message, 'error');
+  } else {
+    todos = todos.map(function (t) { return t.id === tempId ? res.data : t; });
+    renderTodos();
+  }
 }
 
 // ── TOGGLE / DELETE ───────────────────────────────────────
 async function toggleTodo(id, current) {
-  var res = await sb.from('todos').update({ is_complete: !current }).eq('id', id);
-  if (res.error) showMsg('todos-msg', res.error.message, 'error');
+  var next = !current;
+
+  // Optimistic: flip locally right away
+  todos = todos.map(function (t) { return t.id === id ? Object.assign({}, t, { is_complete: next }) : t; });
+  renderTodos();
+
+  var res = await sb.from('todos').update({ is_complete: next }).eq('id', id);
+  if (res.error) {
+    // Revert
+    todos = todos.map(function (t) { return t.id === id ? Object.assign({}, t, { is_complete: current }) : t; });
+    renderTodos();
+    showMsg('todos-msg', res.error.message, 'error');
+  }
 }
 
 async function deleteTodo(id) {
-  // deleting a parent also deletes children via ON DELETE CASCADE in DB
+  // Optimistic: remove locally (children too, mirroring ON DELETE CASCADE)
+  var removed = todos.filter(function (t) { return t.id === id || t.parent_id === id; });
+  todos = todos.filter(function (t) { return t.id !== id && t.parent_id !== id; });
+  renderTodos();
+
   var res = await sb.from('todos').delete().eq('id', id);
-  if (res.error) showMsg('todos-msg', res.error.message, 'error');
+  if (res.error) {
+    // Revert — put removed rows back
+    todos = todos.concat(removed);
+    renderTodos();
+    showMsg('todos-msg', res.error.message, 'error');
+  }
 }
 
 function toggleCollapse(parentId) {
